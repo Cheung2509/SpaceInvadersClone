@@ -1,0 +1,2 @@
+A and D to move
+Space bar to shoot
