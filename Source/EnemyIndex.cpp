@@ -7,9 +7,9 @@
 
 void EnemyIndex::loadEnemyAvatar(std::shared_ptr<ASGE::Renderer> renderer)
 {
-	for (auto& iter = enemies.begin(); iter != enemies.end(); ++iter)
+	for (auto& iter : enemies)
 	{
-		iter->get()->loadAvatar(renderer);
+		iter->loadAvatar(renderer);
 	}
 }
 
@@ -20,10 +20,10 @@ void EnemyIndex::addEnemies(std::unique_ptr<Enemy>&& obj)
 
 void EnemyIndex::renderEnemies(std::shared_ptr<ASGE::Renderer> renderer)
 {
-	for (auto& iter = enemies.begin(); iter != enemies.end(); ++iter)
+	for (auto& iter : enemies)
 	{
-		iter->get()->renderAvatar(renderer);
-		iter->get()->renderBullets(renderer);
+		iter->renderAvatar(renderer);
+		iter->renderBullets(renderer);
 	}
 }
 
@@ -31,7 +31,7 @@ void EnemyIndex::setEnemiesInitPos()
 {
 	int index = 0;
 	int row = 0;
-	for (auto& iter = enemies.begin(); iter != enemies.end(); ++iter)
+	for (auto& iter : enemies)
 	{
 		if (index == enemiesInRow)
 		{
@@ -39,11 +39,11 @@ void EnemyIndex::setEnemiesInitPos()
 			row = row++;
 		}
 
-		int posX = ((iter->get()->getSpriteSizeX() + 40) * index) + 160;
-		iter->get()->setXpos(posX);
+		int posX = ((iter->getSpriteSizeX() + 40) * index) + 160;
+		iter->setXpos(posX);
 
-		int posY = ((iter->get()->getSpriteSizeY() + 10) * row) + 50;
-		iter->get()->setYpos(posY);
+		int posY = ((iter->getSpriteSizeY() + 10) * row) + 50;
+		iter->setYpos(posY);
 
 		index++;
 	}
@@ -82,19 +82,19 @@ void EnemyIndex::moveEnemies(std::shared_ptr<ASGE::Renderer> renderer)
 	int index = 0;
 
 	//Determine the direction if the enemy is not moving down
-  	for (auto& iter = enemies.begin(); iter != enemies.end(); ++iter)
+  	for (auto& iter : enemies)
 	{
 		if (index == fire)
 		{
-			iter->get()->fire(renderer);
+			iter->fire(renderer);
 		}
 
-		if (iter->get()->getXpos() <= 40 && hasMoveDown == false)
+		if (iter->getXpos() <= 40 && hasMoveDown == false)
 		{
 			direction = Direction::RIGHT;
 			moveDown = true;
 		}
-		else if ((iter->get()->getXpos() + iter->get()->getSpriteSizeX()) >= 1240 && hasMoveDown == false)
+		else if ((iter->getXpos() + iter->getSpriteSizeX()) >= 1240 && hasMoveDown == false)
 		{
 			direction = Direction::LEFT;
 			moveDown = true;
@@ -116,9 +116,9 @@ void EnemyIndex::moveEnemies(std::shared_ptr<ASGE::Renderer> renderer)
 void EnemyIndex::moveEnemiesDown()
 {
 	//Move the enemy
-	for (auto& iter = enemies.begin(); iter != enemies.end(); ++iter)
+	for (auto& iter : enemies)
 	{
-		iter->get()->moveEnemyDown();
+		iter->moveEnemyDown();
 	}
 	hasMoveDown = true;
 	moveDown = false;
@@ -127,35 +127,28 @@ void EnemyIndex::moveEnemiesDown()
 void EnemyIndex::moveEnemiesLeftRight()
 {
 	//Move the enemy
-	for (auto& iter = enemies.begin(); iter != enemies.end(); ++iter)
+	for (auto& iter : enemies)
 	{
-		iter->get()->moveLeftRight(direction);
+		iter->moveLeftRight(direction);
 	}
 	hasMoveDown = false;
 }
 
 bool EnemyIndex::checkCollision(GameObject* obj)
 {
-	bool collided = false;
-	for (auto& iter = enemies.begin(); iter != enemies.end(); ++iter)
+	for (auto& iter : enemies)
 	{
 		//if any of the enemies collide with the enemy
-		if (iter->get()->checkCollision(obj->getXpos(), obj->getYpos(), obj->getSpriteSizeX(), obj->getSpriteSizeY()))
+		if (iter->checkCollision(obj->getXpos(), obj->getYpos(), obj->getSpriteSizeX(), obj->getSpriteSizeY()))
 		{
 			if (obj->getIsProjectile())
 			{
-				iter->get()->setIsAlive(false);
-				iter = enemies.erase(iter);
-				if (iter == enemies.end())
-				{
-					collided = true;
-					break;
-				}
+				iter->setIsAlive(false);
+
 			}
-			collided = true;
 		}
 	}
 	
-	return collided;
+	return false;
 }
 

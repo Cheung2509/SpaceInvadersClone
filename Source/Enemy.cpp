@@ -2,6 +2,8 @@
 
 #include "Enemy.h"
 
+#include <algorithm>
+
 Enemy::Enemy()
 {
 	this->setIsProjectile(false);
@@ -75,25 +77,18 @@ void Enemy::renderBullets(std::shared_ptr<ASGE::Renderer> renderer)
 	if (!bullets.empty())
 	{
 		//iterate to all bullets
-		for (auto& iter = bullets.begin(); iter != bullets.end(); ++iter)
+		for (auto& iter :bullets)
 		{
 			//Move bullets
-			iter->get()->moveBulletDown();
+			iter->moveBulletDown();
 			//render bullets
-			iter->get()->renderSprite(renderer);
-
-			//If the bullets reach the top of the screen
-			if (iter->get()->getYpos() == 720 || iter->get()->getHit())
-			{
-				//Delete iteration
-				iter = bullets.erase(iter);
-				//If bulletIndex is empty after deleting iterator
-				if (bullets.empty())
-				{
-					//return
-					return;
-				}
-			}
+			iter->renderSprite(renderer);
 		}
+
+		const auto new_end = std::remove_if(bullets.begin(), bullets.end(), [](const std::unique_ptr<Bullet>& b)
+		{
+			return b->getHit() || b->getYpos() == 0;
+		});
+		bullets.erase(new_end, bullets.end());
 	}
 }

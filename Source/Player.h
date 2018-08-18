@@ -8,12 +8,6 @@
 #include <string>
 #include <vector>
 
-namespace ASGE
-{
-	class Sprite;
-	class Renderer;
-}
-
 class Player : public Actor
 {
 public:

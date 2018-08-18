@@ -1,5 +1,8 @@
 #include "Player.h"
+
 #include <Engine/Renderer.h>
+
+#include <algorithm>
 
 Player::Player()
 {
@@ -9,11 +12,14 @@ Player::Player()
 void Player::loadAvatar(std::shared_ptr<ASGE::Renderer> renderer)
 {
 	avatar = renderer->createSprite();
-	avatar->loadTexture("..\\..\\Resources\\Textures\\Player.png");
-	avatar->size[0] = 39;
-	avatar->size[1] = 24;
-	avatar->position[0] = 600;
-	avatar->position[1] = 650;
+	
+	if (avatar->loadTexture("..\\..\\Resources\\Textures\\Player.png"))
+	{
+		avatar->size[0] = 39;
+		avatar->size[1] = 24;
+		avatar->position[0] = 600;
+		avatar->position[1] = 650;
+	}
 }
 
 void Player::moveLeftRight(Direction direct)
@@ -56,26 +62,19 @@ void Player::renderBullets(std::shared_ptr<ASGE::Renderer> renderer)
 	if (!bulletIndex.empty())
 	{
 		//iterate to all bullets
-		for (auto& iter = bulletIndex.begin(); iter != bulletIndex.end(); ++iter)
+		for (auto& iter : bulletIndex)
 		{
 			//Move bullets
-			iter->get()->moveBulletUp();
+			iter->moveBulletUp();
 			//render bullets
-			iter->get()->renderSprite(renderer);
-
-			//If the bullets reach the top of the screen
-			if (iter->get()->getYpos() == 0 || iter->get()->getHit())
-			{
-				//Delete iteration
-				iter = bulletIndex.erase(iter);
-				//If bulletIndex is empty after deleting iterator
-				if (bulletIndex.empty())
-				{
-					//return
-					return;
-				}
-			}
+			iter->renderSprite(renderer);
 		}
+
+		const auto new_end = std::remove_if(bulletIndex.begin(), bulletIndex.end(), [](const std::unique_ptr<Bullet>& b)
+		{
+			return b->getHit() || b->getYpos() == 0;
+		});
+		bulletIndex.erase(new_end, bulletIndex.end());
 	}
 }
 
